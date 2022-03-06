@@ -17,10 +17,10 @@ export const cookieOpts: { path: string, sameSite: boolean | 'none' | 'lax' | 's
     path: '/',
     sameSite: 'strict'
 };
-const token = cookies.get('ox-auth');
 
 export const authApi = {
     login: (username: string, password: string): Promise<{ token: string }> => {
+
         const form = new FormData();
 
         form.set('_username', username);
@@ -36,7 +36,7 @@ export const authApi = {
     }
 };
 
-export const productApi = {
+export const productApi = (token: string) => ({
     getProducts: (page: number, size: number): Promise<ProductsResultType> => {
         return getInstance(token)
             .get(`/variations`, {params: {size, page}})
@@ -45,4 +45,4 @@ export const productApi = {
                 throw response.data;
             });
     }
-};
+});

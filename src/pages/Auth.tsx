@@ -1,52 +1,35 @@
-import React, {FC, useEffect, useState} from "react";
-import {authApi, cookieOpts, cookies, productApi} from "../api/api";
-import {
-    Button, CircularProgress,
-    Pagination,
-    Paper,
-    Table, TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TextField
-} from "@mui/material";
-import {ProductType} from '../types';
+import React, {useEffect, useState} from 'react';
+import {authApi, cookieOpts, cookies} from '../api/api';
+import {Button, TextField} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
 
-type StateProductsType = {
-    items: ProductType[];
-    total_count: number;
-}
+export const Auth = () => {
 
-export const Auth: FC = () => {
+    const token = cookies.get('ox-auth');
+
+    const isAuth = Boolean(token);
+
+    const navigate = useNavigate();
+
     const [loginData, setLoginData] = useState({username: '', password: ''});
 
-    const [products, setProducts] = useState<StateProductsType>({
-        items: [],
-        total_count: 0
-    });
-
-    const [page, setPage] = useState(1);
-
-    const [pageSize, setPageSize] = useState(100);
-
-    const [loading, setLoading] = useState(false);
-
-    const [searchText, setSearchText] = useState('');
-    const matchRegEx = new RegExp(searchText, 'i');
-
-    const items = products.items.filter(({name}) => (
-        Boolean((name ?? '').match(matchRegEx))
-    ));
-
-    const totalPages = Math.ceil(products.total_count / pageSize);
-
     const login = async () => {
+
         const {username, password} = loginData;
+
         const res = await authApi.login(username, password);
+
         cookies.set('ox-auth', res.token, cookieOpts);
-        // console.log(res);
+
+        navigate("/");
     };
+
+    useEffect(() => {
+        if (isAuth) {
+            navigate("/");
+        }
+    }, [isAuth]);
+
 
     const handleLogin = ({target: {name, value}}: any) => {
         setLoginData({
@@ -54,29 +37,6 @@ export const Auth: FC = () => {
             [name]: value
         });
     };
-
-    // console.log(loginData);
-
-    const setFetchedData = async () => {
-        setLoading(true);
-        const {items, total_count} = await productApi.getProducts(page, pageSize);
-        setProducts({
-            items,
-            total_count
-        });
-        setLoading(false);
-    };
-
-    const paginationHandle = (e: any, page: number) => {
-        setPage(page);
-    };
-
-    useEffect(() => {
-        setFetchedData();
-    }, [page, pageSize]);
-
-    // console.log(products);
-    // console.log(totalPages);
 
     return (
         <div>
@@ -94,54 +54,6 @@ export const Auth: FC = () => {
                 onChange={handleLogin}
             />
             <Button onClick={login}>click</Button>
-
-            <TextField
-                type="text"
-                placeholder="Search..."
-                onChange={e => setSearchText(e.target.value)}
-            />
-            {loading
-                ? <CircularProgress/>
-                : <TableContainer component={Paper}>
-                    <Table sx={{maxWidth: 1000}} aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Product name</TableCell>
-                                <TableCell align="right">Brand</TableCell>
-                                <TableCell align="right">Size</TableCell>
-                                <TableCell align="right">Color</TableCell>
-                                <TableCell align="right">UZS</TableCell>
-                                <TableCell align="right">USD</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {items.map((item) => {
-
-                                const {name, supplier, properties, importRecord, id} = item;
-                                const [size, color] = properties;
-                                const {UZS, USD} = importRecord?.stockSellPrice ?? {};
-
-                                return (
-                                    <TableRow
-                                        key={id}
-                                        sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                                    >
-                                        <TableCell component="th" scope="row">{name}</TableCell>
-                                        <TableCell align="right">{supplier}</TableCell>
-                                        <TableCell align="right">{size?.value}</TableCell>
-                                        <TableCell align="right">{color?.value}</TableCell>
-                                        <TableCell align="right">{UZS}</TableCell>
-                                        <TableCell align="right">{USD}</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>}
-            {totalPages > 0 && <Pagination
-                count={totalPages}
-                onChange={paginationHandle}
-            />}
         </div>
     );
 };
