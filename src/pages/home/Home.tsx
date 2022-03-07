@@ -90,7 +90,7 @@ export const Home: FC = () => {
                     <Toolbar>
                         <TextField
                             type="text"
-                            placeholder="Search..."
+                            placeholder="Поиск..."
                             onChange={e => setSearchText(e.target.value)}
                         />
                         <Button onClick={logOutHandle}>Выйти</Button>

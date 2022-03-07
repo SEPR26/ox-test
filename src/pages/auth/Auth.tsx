@@ -28,6 +28,13 @@ export const Auth = () => {
         }
     };
 
+    const handleDownEnter = (e: any) => {
+        if (e.key === 'Enter') {
+            login();
+            setLoginData(e.target.value);
+        }
+    };
+
     useEffect(() => {
         if (isAuth) {
             navigate("/");
@@ -55,6 +62,7 @@ export const Auth = () => {
                         name="username"
                         value={loginData.username}
                         onChange={handleLogin}
+                        onKeyPress={handleDownEnter}
                     />
                     <TextField
                         className="text-input"
@@ -63,6 +71,7 @@ export const Auth = () => {
                         name="password"
                         value={loginData.password}
                         onChange={handleLogin}
+                        onKeyPress={handleDownEnter}
                     />
                 </CardContent>
                 <CardActions>
