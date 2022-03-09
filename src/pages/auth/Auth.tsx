@@ -53,8 +53,10 @@ export const Auth = () => {
 
     return (
         <div className={classes.root}>
-            <Typography> Login: user_task </Typography>
-            <Typography> Password: user_task </Typography>
+            <div style={{margin: '20px'}}>
+                <Typography> Login:  user_task </Typography>
+                <Typography> Password:  user_task </Typography>
+            </div>
             <Card variant="outlined" className="card-container">
                 <CardContent>
                     <h2>Авторизация</h2>
